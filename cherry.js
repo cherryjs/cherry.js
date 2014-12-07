@@ -2,13 +2,14 @@ var $C, CherryJs;
 
 ((function () {
     'use strict';
+
     var bindList = {
-            object: [ 'clone', 'equal', 'at', 'debug' ],
-            array: [ 'clone', 'equal', 'swap', 'intersect', 'unite' ],
-            number: [ 'clone', 'equal' ],
-            string: [ 'clone', 'equal', 'removeSpace', 'holeStr', 'trim' ],
-            regexp: [ 'clone' ],
-            date: [ 'clone' ]
+            object: [ 'equal', 'at', 'debug' ],
+            array: [ 'equal', 'swap', 'intersect', 'unite' ],
+            number: [ 'equal' ],
+            string: [ 'equal', 'removeSpace', 'holeStr', 'trim' ],
+            regexp: [],
+            date: []
         },
         functionContainer = {
             object: {},
@@ -52,25 +53,6 @@ var $C, CherryJs;
         }
 
         /* method of Object */
-        Object.prototype.clone = function () {
-            var Constructor = this.constructor;
-            var obj = new Constructor();
-
-            for (var attr in this) {
-                if (this.hasOwnProperty(attr)) {
-                    if (typeof(this[attr]) !== "function") {
-                        if (this[attr] === null) {
-                            obj[attr] = null;
-                        }
-                        else {
-                            obj[attr] = this[attr].clone();
-                        }
-                    }
-                }
-            }
-            return obj;
-        };
-
         Object.prototype.equal = function (obj) {
             for (var attr in this) {
                 if (this.hasOwnProperty(attr) && obj.hasOwnProperty(attr)) {
@@ -124,15 +106,6 @@ var $C, CherryJs;
         /* END --- method of Object */
 
         /* Method of Array*/
-        Array.prototype.clone = function () {
-            var thisArr = this.valueOf();
-            var newArr = [];
-            for (var i=0; i<thisArr.length; i++) {
-                newArr.push(thisArr[i]);
-            }
-            return newArr;
-        };
-
         Array.prototype.equal = function (arr) {
             var me = this.valueOf();
             if (me.length !== arr.length) {
@@ -193,11 +166,9 @@ var $C, CherryJs;
         /* END --- Method of Array */
 
         /* Method of Number */
-        Number.prototype.clone = function() { return this.valueOf(); };
         Number.prototype.equal = function (num) { return this.valueOf() === num; };
 
         /* Method of String */
-        String.prototype.clone = function() { return this.valueOf(); };
         String.prototype.equal = function (str) { return this.valueOf() === str; };
         String.prototype.removeSpace = function () { return this.valueOf().replace(/\s/g, ''); };
         String.prototype.holeStr = function (start, end) {
@@ -206,17 +177,8 @@ var $C, CherryJs;
 		String.prototype.trim = function (str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
 
         /* Method of Date*/
-        Date.prototype.clone = function() { return new Date(this.valueOf()); };
 
         /* Method of RegExp*/
-        RegExp.prototype.clone = function() {
-            var pattern = this.valueOf();
-            var flags = '';
-            flags += pattern.global ? 'g' : '';
-            flags += pattern.ignoreCase ? 'i' : '';
-            flags += pattern.multiline ? 'm' : '';
-            return new RegExp(pattern.source, flags);
-        };
     };
 
     var unbind = function () {
