@@ -1,4 +1,4 @@
-var J, JustJS;
+var $C, CherryJs;
 
 ((function () {
     'use strict';
@@ -272,7 +272,7 @@ var J, JustJS;
         };
     };
 
-    JustJS = function (func) {
+    CherryJs = function (func) {
         var result;
 
         if (typeof(func)==="function") {
@@ -290,6 +290,6 @@ var J, JustJS;
 
         return result;
     };
-    J = JustJS;
+    $C = CherryJs;
 
 })());
