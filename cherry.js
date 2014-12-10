@@ -9,12 +9,12 @@ var $C, CherryJs;
     'use strict';
 
     var bindList = {
-            object: [ '$equal', '$at', '$debug' ],
-            array: [ '$equal', '$swap', '$intersect', '$unite' ],
-            number: [ '$equal' ],
-            string: [ '$equal', '$removeSpace', '$trim' ],
-            regexp: [],
-            date: []
+            object: [ '$clone', '$equal', '$at', '$debug' ],
+            array: [ '$clone', '$equal', '$swap', '$intersect', '$unite' ],
+            number: [ '$clone', '$equal' ],
+            string: [ '$clone', '$equal', '$removeSpace', '$trim' ],
+            regexp: [ '$clone' ],
+            date: [ '$clone' ]
         },
         functionContainer = {
             object: {},
@@ -58,6 +58,25 @@ var $C, CherryJs;
         }
 
         /* method of Object */
+        Object.prototype.$clone = function () {
+            var Constructor = this.constructor;
+            var obj = new Constructor();
+
+            for (var attr in this) {
+                if (this.hasOwnProperty(attr)) {
+                    if (typeof(this[attr]) !== "function") {
+                        if (this[attr] === null) {
+                            obj[attr] = null;
+                        }
+                        else {
+                            obj[attr] = this[attr].$clone();
+                        }
+                    }
+                }
+            }
+            return obj;
+        };
+
         Object.prototype.$equal = function (obj) {
             for (var attr in this) {
                 if (this.hasOwnProperty(attr) && obj.hasOwnProperty(attr)) {
@@ -111,6 +130,15 @@ var $C, CherryJs;
         /* END --- method of Object */
 
         /* Method of Array*/
+        Array.prototype.$clone = function () {
+            var thisArr = this.valueOf();
+            var newArr = [];
+            for (var i=0; i<thisArr.length; i++) {
+                newArr.push(thisArr[i].$clone());
+            }
+            return newArr;
+        };
+
         Array.prototype.$equal = function (arr) {
             var me = this.valueOf();
             if (me.length !== arr.length) {
@@ -153,7 +181,7 @@ var $C, CherryJs;
             var me = this.valueOf();
             var result = [];
             for (var i = 0; i < me.length; i++) {
-                if (me[i].at(arr)) {
+                if (me[i].$at(arr) && !me[i].$at(result)) {
                     result.push(me[i]);
                 }
             }
@@ -162,9 +190,17 @@ var $C, CherryJs;
 
         Array.prototype.$unite = function (arr) {
             var me = this.valueOf();
-            var result = me.clone();
-            for (var i = 0; i < arr.length; i++) {
-                if (!arr[i].at(result)) {
+            var result = [];
+            if (!arr) {
+                return me;
+            }
+            for (var i = 0; i < me.length; i++) {
+                if (!me[i].$at(result)) {
+                    result.push(me[i]);
+                }
+            }
+            for (i = 0; i < arr.length; i++) {
+                if (!arr[i].$at(result)) {
                     result.push(arr[i]);
                 }
             }
@@ -173,16 +209,27 @@ var $C, CherryJs;
         /* END --- Method of Array */
 
         /* Method of Number */
+        Number.prototype.$clone = function() { return this.valueOf(); };
         Number.prototype.$equal = function (num) { return this.valueOf() === num; };
 
         /* Method of String */
+        String.prototype.$clone = function() { return this.valueOf(); };
         String.prototype.$equal = function (str) { return this.valueOf() === str; };
         String.prototype.$removeSpace = function () { return this.valueOf().replace(/\s/g, ''); };
 		String.prototype.$trim = function (str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
 
         /* Method of Date*/
+        Date.prototype.$clone = function() { return new Date(this.valueOf()); };
 
         /* Method of RegExp*/
+        RegExp.prototype.$clone = function() {
+            var pattern = this.valueOf();
+            var flags = '';
+            flags += pattern.global ? 'g' : '';
+            flags += pattern.ignoreCase ? 'i' : '';
+            flags += pattern.multiline ? 'm' : '';
+            return new RegExp(pattern.source, flags);
+        };
     };
 
     var unbind = function () {
