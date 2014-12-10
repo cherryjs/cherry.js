@@ -1,7 +1,7 @@
 cherry.js
 =========
 
-cherry.js is a JavaScript core library, and it can run on both browser and Node. You can use javascript more easily with JustJS. The sample follows:
+[cherry.js](http://cherryjs.com) is a JavaScript utility library, and it can run on both browser and Node. You can use javascript more easily with cherry.js. The sample follows:
 
 Just include this script for using:
 
@@ -11,13 +11,13 @@ And enjoy cherry.js:
 
     $C(function(){
         var arr = ['a','b','c','d'];
-        arr.swap(0,2);
+        arr.$swap(0,2);
         console.log(arr); //return ['c','b','a','d'];
 
         var obj_1 = { a:{b:1}, c:[1,2,3] };
         var obj_2 = { a:{b:1}, c:[1,2,3] };
         console.log( obj_1===obj_2 );     //return false;
-        console.log( obj_1.equal(obj_2) );  //return true;
+        console.log( obj_1.$equal(obj_2) );  //return true;
     });
 
 If you don't care about polluting the global namespace, you can:
