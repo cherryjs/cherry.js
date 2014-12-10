@@ -3,10 +3,34 @@
 //   (c) 2013-2014 Jerry Zou
 //   Under the MIT license
 
-var $C, CherryJs;
-
 ((function () {
-    'use strict';
+    var root = this;
+    var $C, CherryJs;
+
+    CherryJs = function (func) {
+        var result;
+
+        if (typeof(func)==="function") {
+            bind();
+            result = func();
+            unbind();
+        }
+
+        return result;
+    };
+    $C = CherryJs;
+
+    // Export the Underscore object for **Node.js**, with
+    // backwards-compatibility for the old `require()` API. If we're in
+    // the browser, add `_` as a global object.
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            exports = module.exports = CherryJs;
+        }
+        exports.$C = exports.CherryJs = CherryJs;
+    } else {
+        root.$C = root.CherryJs = CherryJs;
+    }
 
     var bindList = {
             object: [ '$clone', '$equal', '$at', '$debug' ],
@@ -294,19 +318,7 @@ var $C, CherryJs;
         };
     };
 
-    CherryJs = function (func) {
-        var result;
-
-        if (typeof(func)==="function") {
-            bind();
-            result = func();
-            unbind();
-        }
-
-        return result;
-    };
     CherryJs.bind = bind;
     CherryJs.unbind = unbind;
-    $C = CherryJs;
 
 })());

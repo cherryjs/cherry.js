@@ -1,0 +1,28 @@
+{
+  "name": "cherry.js",
+  "version": "0.1.3",
+  "description": "A JavaScript utility library, and it can run on both browser and Node.",
+  "main": "cherry.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cherryjs/cherry.js.git"
+  },
+  "keywords": [
+    "cherry.js"
+  ],
+  "author": "JerryZou <zry656565@gmail.com> (http://jerryzou.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cherryjs/cherry.js/issues"
+  },
+  "homepage": "http://cherryjs.com"
+}

@@ -22,13 +22,29 @@ And enjoy cherry.js:
 
 If you don't care about polluting the global namespace, you can:
 
-    $C('bind');
+    $C.bind();
     /*
      * do anything you want with cherry.js
      */
 
     //And when you don't want to use cherry any more, you can call $C('unbind')
-    $C('unbind');
+    $C.unbind();
+
+### Use cherry.js in Node.js
+
+#### Install
+
+    npm install --save-dev cherry.js
+
+### Use
+
+    var $C = require('cherry.js');
+
+    $C(function(){
+        var arr = ['a','b','c','d'];
+        arr.$swap(0,2);
+        console.log(arr); //return ['c','b','a','d'];
+    });
 
 ## More Infos
 Home Website: http://cherryjs.com
