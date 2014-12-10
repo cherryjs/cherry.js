@@ -283,6 +283,7 @@ var $C, CherryJs;
                 delete RegExp.prototype[bindList.regexp[i]];
             }
         }
+        // empty the functionContainer
         functionContainer = {
             object: {},
             array: {},
@@ -301,16 +302,11 @@ var $C, CherryJs;
             result = func();
             unbind();
         }
-        else if (typeof(func)==="string") {
-            if (func === 'bind') {
-                bind();
-            } else if (func === 'unbind') {
-                unbind();
-            }
-        }
 
         return result;
     };
+    CherryJs.bind = bind;
+    CherryJs.unbind = unbind;
     $C = CherryJs;
 
 })());

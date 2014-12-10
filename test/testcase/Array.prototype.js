@@ -1,10 +1,10 @@
 (function($C){
     QUnit.module('Array.prototype', {
         beforeEach: function() {
-            CherryJs('bind');
+            $C.bind();
         },
         afterEach: function() {
-            CherryJs('unbind');
+            $C.unbind();
         }
     });
 
