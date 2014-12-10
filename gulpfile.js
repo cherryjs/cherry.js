@@ -5,12 +5,6 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var jshint = require('gulp-jshint');
 
-gulp.task('lint', function() {
-  return gulp.src('cherry.js')
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
-});
-
 gulp.task('default', function() {
     gulp.src('cherry.js')
     	.pipe(jshint())
@@ -18,4 +12,14 @@ gulp.task('default', function() {
         .pipe(uglify())
         .pipe(rename('cherry.min.js'))
         .pipe(gulp.dest('.'));
+});
+
+gulp.task('test', function () {
+
+});
+
+gulp.task('lint', function() {
+  return gulp.src('cherry.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'));
 });
