@@ -132,19 +132,21 @@ var $C, CherryJs;
 
         Array.prototype.$swap = function (index1, index2) {
             var me = this.valueOf();
-            if (index1 < 0 || index1 > me.length) {
-                console.log('Error 2001: the argument index1 of Array.swap(index1, index2) is out of range.');
-            }
-            if (index2 < 0 || index2 > me.length) {
-                console.log('Error 2002: the argument index2 of Array.swap(index1, index2) is out of range.');
-            }
             if (index1 === index2) {
-                return;
+                return this;
             }
-            me = this.valueOf();
+            if (index1 < 0 || index1 >= me.length) {
+                console.log('Error 2001: the argument index1 of Array.swap(index1, index2) is out of range.');
+                return this;
+            }
+            if (index2 < 0 || index2 >= me.length) {
+                console.log('Error 2002: the argument index2 of Array.swap(index1, index2) is out of range.');
+                return this;
+            }
             var tmp = me[index1];
             me[index1] = me[index2];
             me[index2] = tmp;
+            return this;
         };
 
         Array.prototype.$intersect = function (arr) {
