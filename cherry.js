@@ -4,10 +4,10 @@ var $C, CherryJs;
     'use strict';
 
     var bindList = {
-            object: [ 'equal', 'at', 'debug' ],
-            array: [ 'equal', 'swap', 'intersect', 'unite' ],
-            number: [ 'equal' ],
-            string: [ 'equal', 'removeSpace', 'holeStr', 'trim' ],
+            object: [ '$equal', '$at', '$debug' ],
+            array: [ '$equal', '$swap', '$intersect', '$unite' ],
+            number: [ '$equal' ],
+            string: [ '$equal', '$removeSpace', '$trim' ],
             regexp: [],
             date: []
         },
@@ -53,7 +53,7 @@ var $C, CherryJs;
         }
 
         /* method of Object */
-        Object.prototype.equal = function (obj) {
+        Object.prototype.$equal = function (obj) {
             for (var attr in this) {
                 if (this.hasOwnProperty(attr) && obj.hasOwnProperty(attr)) {
                     if (typeof(this[attr]) !== "function") {
@@ -85,7 +85,7 @@ var $C, CherryJs;
             return true;
         };
 
-        Object.prototype.at = function (arr) {
+        Object.prototype.$at = function (arr) {
             if (Object.prototype.toString.call(arr) === '[object Array]') {
                 for (var i=0; i<arr.length; i++) {
                     if (arr[i] === this.valueOf()) {
@@ -94,19 +94,19 @@ var $C, CherryJs;
                 }
             }
             else {
-                console.log('Error 1001: the argument of Object.in() is not an array.');
+                console.log('Error 1001: the argument of Object.at() is not an array.');
             }
             return false;
         };
 
-        Object.prototype.debug = function (message) {
+        Object.prototype.$debug = function (message) {
             console.log("Debug Message: " + message + ', Value: ' + this.valueOf());
             return this;
         };
         /* END --- method of Object */
 
         /* Method of Array*/
-        Array.prototype.equal = function (arr) {
+        Array.prototype.$equal = function (arr) {
             var me = this.valueOf();
             if (me.length !== arr.length) {
                 return false;
@@ -125,7 +125,7 @@ var $C, CherryJs;
             return true;
         };
 
-        Array.prototype.swap = function (index1, index2) {
+        Array.prototype.$swap = function (index1, index2) {
             var me = this.valueOf();
             if (index1 < 0 || index1 > me.length) {
                 console.log('Error 2001: the argument index1 of Array.swap(index1, index2) is out of range.');
@@ -142,7 +142,7 @@ var $C, CherryJs;
             me[index2] = tmp;
         };
 
-        Array.prototype.intersect = function (arr) {
+        Array.prototype.$intersect = function (arr) {
             var me = this.valueOf();
             var result = [];
             for (var i = 0; i < me.length; i++) {
@@ -153,7 +153,7 @@ var $C, CherryJs;
             return result;
         };
 
-        Array.prototype.unite = function (arr) {
+        Array.prototype.$unite = function (arr) {
             var me = this.valueOf();
             var result = me.clone();
             for (var i = 0; i < arr.length; i++) {
@@ -166,15 +166,12 @@ var $C, CherryJs;
         /* END --- Method of Array */
 
         /* Method of Number */
-        Number.prototype.equal = function (num) { return this.valueOf() === num; };
+        Number.prototype.$equal = function (num) { return this.valueOf() === num; };
 
         /* Method of String */
-        String.prototype.equal = function (str) { return this.valueOf() === str; };
-        String.prototype.removeSpace = function () { return this.valueOf().replace(/\s/g, ''); };
-        String.prototype.holeStr = function (start, end) {
-            return this.valueOf().substr(0, start) + this.valueOf().substr(end);
-        };
-		String.prototype.trim = function (str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
+        String.prototype.$equal = function (str) { return this.valueOf() === str; };
+        String.prototype.$removeSpace = function () { return this.valueOf().replace(/\s/g, ''); };
+		String.prototype.$trim = function (str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
 
         /* Method of Date*/
 
