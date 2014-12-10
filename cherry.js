@@ -1,3 +1,8 @@
+//   cherry.js 0.1.0
+//   http://cherryjs.com
+//   (c) 2013-2014 Jerry Zou
+//   Under the MIT license
+
 var $C, CherryJs;
 
 ((function () {
