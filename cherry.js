@@ -13,8 +13,8 @@ var $C, CherryJs;
             array: [ '$clone', '$equal', '$swap', '$intersect', '$unite' ],
             number: [ '$clone', '$equal' ],
             string: [ '$clone', '$equal', '$removeSpace', '$trim' ],
-            regexp: [ '$clone' ],
-            date: [ '$clone' ]
+            regexp: [ '$clone', '$equal' ],
+            date: [ '$clone', '$equal' ]
         },
         functionContainer = {
             object: {},
@@ -210,16 +210,17 @@ var $C, CherryJs;
 
         /* Method of Number */
         Number.prototype.$clone = function() { return this.valueOf(); };
-        Number.prototype.$equal = function (num) { return this.valueOf() === num; };
+        Number.prototype.$equal = function(num) { return this.valueOf() === num; };
 
         /* Method of String */
         String.prototype.$clone = function() { return this.valueOf(); };
-        String.prototype.$equal = function (str) { return this.valueOf() === str; };
-        String.prototype.$removeSpace = function () { return this.valueOf().replace(/\s/g, ''); };
-		String.prototype.$trim = function (str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
+        String.prototype.$equal = function(str) { return this.valueOf() === str; };
+        String.prototype.$removeSpace = function() { return this.valueOf().replace(/\s/g, ''); };
+		String.prototype.$trim = function(str) { return this.valueOf().replace(/^\s*(?:((?:\S+.*\S+)|\S))\s*$/, '$1'); };
 
         /* Method of Date*/
         Date.prototype.$clone = function() { return new Date(this.valueOf()); };
+        Date.prototype.$equal = function(date) { return this.valueOf() === date.valueOf(); };
 
         /* Method of RegExp*/
         RegExp.prototype.$clone = function() {
@@ -229,6 +230,13 @@ var $C, CherryJs;
             flags += pattern.ignoreCase ? 'i' : '';
             flags += pattern.multiline ? 'm' : '';
             return new RegExp(pattern.source, flags);
+        };
+        RegExp.prototype.$equal = function(regexp) {
+            var me = this.valueOf();
+            return me.source === regexp.source &&
+                me.global === regexp.global &&
+                me.ignoreCase === regexp.ignoreCase &&
+                me.multiline === regexp.multiline;
         };
     };
 
