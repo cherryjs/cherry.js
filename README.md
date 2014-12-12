@@ -36,7 +36,7 @@ If you don't care about polluting the global namespace, you can:
 
     npm install --save-dev cherry.js
 
-### Use
+#### Use
 
     var $C = require('cherry.js');
 
