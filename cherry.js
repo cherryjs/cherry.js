@@ -112,7 +112,7 @@
                                     return false; 
                                 }
                                 else {
-                                    if (!this[attr].equal(obj[attr])) {
+                                    if (!this[attr].$equal(obj[attr])) {
                                         return false;
                                     }
                                 }
