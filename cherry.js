@@ -1,4 +1,4 @@
-//   cherry.js 0.1.0
+//   cherry.js 0.1.5
 //   http://cherryjs.com
 //   (c) 2013-2014 Jerry Zou
 //   Under the MIT license
@@ -92,11 +92,10 @@
         configurable: false,
         writable: true,
         value: function (objectStack) {
-          var Constructor = this.constructor;
-          var obj = new Constructor();
+          var obj = {};
           objectStack = objectStack || [];
           objectStack.push(this);
-  
+
           for (var attr in this) {
             if (this.hasOwnProperty(attr)) {
               if (typeof(this[attr]) !== "function") {
