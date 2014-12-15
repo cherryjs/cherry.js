@@ -91,26 +91,27 @@
         enumerable: false,
         configurable: false,
         writable: true,
-        value: function () {
+        value: function (objectStack) {
           var Constructor = this.constructor;
           var obj = new Constructor();
+          objectStack = objectStack || [];
+          objectStack.push(this);
   
-          try {
-            for (var attr in this) {
-              if (this.hasOwnProperty(attr)) {
-                if (typeof(this[attr]) !== "function") {
-                  if (this[attr] === null) {
-                    obj[attr] = null;
+          for (var attr in this) {
+            if (this.hasOwnProperty(attr)) {
+              if (typeof(this[attr]) !== "function") {
+                if (this[attr] === null) {
+                  obj[attr] = null;
+                }
+                else {
+                  if (objectStack.indexOf(this[attr]) > 0) {
+                    throw 'Cyclic Object';
                   }
-                  else {
-                    obj[attr] = this[attr].$clone();
-                  }
+                  obj[attr] = this[attr].$clone(objectStack);
                 }
               }
             }
-          } catch (error) {
-            return error;
-          } 
+          }
           return obj;
         }
       },
@@ -191,11 +192,11 @@
         enumerable: false,
         configurable: false,
         writable: true,
-        value: function () {
+        value: function (objectStack) {
           var thisArr = this.valueOf();
           var newArr = [];
           for (var i=0; i<thisArr.length; i++) {
-            newArr.push(thisArr[i].$clone());
+            newArr.push(thisArr[i].$clone(objectStack));
           }
           return newArr;
         }

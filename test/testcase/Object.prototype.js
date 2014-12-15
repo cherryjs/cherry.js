@@ -13,7 +13,12 @@
     	assert.deepEqual(obj.$clone(), obj, 'can clone an object');
     	var complexObj = {arr: [1,2,"3"], obj: {attr: "test"}};
     	assert.deepEqual(complexObj.$clone(), complexObj, 'can clone a complex object');
-
+        var cyclicObj = {};
+        var cyclicObj2 = {obj: cyclicObj};
+        cyclicObj.obj = cyclicObj2;
+        assert.throws(function(assert){
+            cyclicObj.$clone();
+        }, 'return null when cloning a cyclic object.');
     });
 
     QUnit.test('$equal', function(assert) {
