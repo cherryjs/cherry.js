@@ -27,7 +27,7 @@ If you don't care about polluting the global namespace, you can:
      * do anything you want with cherry.js
      */
 
-    //And when you don't want to use cherry any more, you can call $C('unbind')
+    //And when you don't want to use cherry any more, you can call $C.unbind()
     $C.unbind();
 
 ### Use cherry.js in Node.js
