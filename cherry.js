@@ -34,51 +34,50 @@
   }
 
   var bindList = {
-      object: [ '$clone', '$equal', '$at', '$debug' ],
-      array: [ '$clone', '$equal', '$swap', '$intersect', '$unite' ],
-      number: [ '$clone', '$equal' ],
-      string: [ '$clone', '$equal', '$removeSpace', '$trim' ],
-      regexp: [ '$clone', '$equal' ],
-      date: [ '$clone', '$equal' ]
+    object: {
+      methods: [ '$clone', '$equal', '$at', '$debug' ],
+      functionContainer: {},
+      proto: Object.prototype
     },
-    functionContainer = {
-      object: {},
-      array: {},
-      number: {},
-      string: {},
-      regexp: {},
-      date: {}
-    };
+    array: {
+      methods: [ '$clone', '$equal', '$swap', '$intersect', '$unite' ],
+      functionContainer: {},
+      proto: Array.prototype
+    },
+    number: {
+      methods: [ '$clone', '$equal' ],
+      functionContainer: {},
+      proto: Number.prototype
+    },
+    // bool: {
+    //   methods: [ '$clone', '$equal' ],
+    //   functionContainer: {},
+    //   proto: Boolean.prototype
+    // },
+    string: {
+      methods: [ '$clone', '$equal', '$removeSpace', '$trim' ],
+      functionContainer: {},
+      proto: String.prototype
+    },
+    regexp: {
+      methods: [ '$clone', '$equal' ],
+      functionContainer: {},
+      proto: RegExp.prototype
+    },
+    date: {
+      methods: [ '$clone', '$equal' ],
+      functionContainer: {},
+      proto: Date.prototype
+    }
+  };
 
+  //bind methods to prototypes
   var bind = function () {
-    for (var i=0; i < bindList.object.length; i++) {
-      if (Object.prototype[bindList.object[i]]) {
-        functionContainer.object[bindList.object[i]] = Object.prototype[bindList.object[i]];
-      }
-    }
-    for (i=0; i < bindList.array.length; i++) {
-      if (Array.prototype[bindList.array[i]]) {
-        functionContainer.array[bindList.array[i]] = Array.prototype[bindList.array[i]];
-      }
-    }
-    for (i=0; i < bindList.string.length; i++) {
-      if (String.prototype[bindList.string[i]]) {
-        functionContainer.string[bindList.string[i]] = String.prototype[bindList.string[i]];
-      }
-    }
-    for (i=0; i < bindList.number.length; i++) {
-      if (Number.prototype[bindList.number[i]]) {
-        functionContainer.number[bindList.number[i]] = Number.prototype[bindList.number[i]];
-      }
-    }
-    for (i=0; i < bindList.number.length; i++) {
-      if (Date.prototype[bindList.date[i]]) {
-        functionContainer.date[bindList.date[i]] = Date.prototype[bindList.date[i]];
-      }
-    }
-    for (i=0; i < bindList.regexp.length; i++) {
-      if (RegExp.prototype[bindList.regexp[i]]) {
-        functionContainer.regexp[bindList.regexp[i]] = RegExp.prototype[bindList.regexp[i]];
+    //if some methods has been defined, move them to functionContainer.
+    for (var name in bindList) {
+      for (var i=0; i < bindList[name].methods.length; i++) {
+        var methodName = bindList[name].methods[i];
+        bindList[name].functionContainer[methodName] = bindList[name].proto[methodName] || undefined;
       }
     }
 
@@ -399,57 +398,21 @@
   };
 
   var unbind = function () {
-    for (var i=0; i < bindList.object.length; i++) {
-      if (functionContainer.object.hasOwnProperty(bindList.object[i])) {
-        Object.prototype[bindList.object[i]] = functionContainer.object[bindList.object[i]];
-      } else {
-        delete Object.prototype[bindList.object[i]];
-      }
-    }
-    for (i=0; i < bindList.array.length; i++) {
-      if (functionContainer.array.hasOwnProperty(bindList.array[i])) {
-        Array.prototype[bindList.array[i]] = functionContainer.array[bindList.array[i]];
-      } else {
-        delete Array.prototype[bindList.array[i]];
-      }
-    }
-    for (i=0; i < bindList.string.length; i++) {
-      if (functionContainer.string.hasOwnProperty(bindList.string[i])) {
-        String.prototype[bindList.string[i]] = functionContainer.string[bindList.string[i]];
-      } else {
-        delete String.prototype[bindList.string[i]];
-      }
-    }
-    for (i=0; i < bindList.number.length; i++) {
-      if (functionContainer.number.hasOwnProperty(bindList.number[i])) {
-        Number.prototype[bindList.number[i]] = functionContainer.number[bindList.number[i]];
-      } else {
-        delete Number.prototype[bindList.number[i]];
-      }
-    }
-    for (i=0; i < bindList.date.length; i++) {
-      if (functionContainer.date.hasOwnProperty(bindList.date[i])) {
-        Date.prototype[bindList.date[i]] = functionContainer.date[bindList.date[i]];
-      } else {
-        delete Date.prototype[bindList.date[i]];
-      }
-    }
-    for (i=0; i < bindList.regexp.length; i++) {
-      if (functionContainer.regexp.hasOwnProperty(bindList.regexp[i])) {
-        RegExp.prototype[bindList.regexp[i]] = functionContainer.regexp[bindList.regexp[i]];
-      } else {
-        delete RegExp.prototype[bindList.regexp[i]];
+    //if release the functions from functionContainer.
+    for (var name in bindList) {
+      for (var i=0; i < bindList[name].methods.length; i++) {
+        var methodName = bindList[name].methods[i];
+        if (bindList[name].functionContainer.hasOwnProperty(methodName)) {
+          bindList[name].proto[methodName] = bindList[name].functionContainer[methodName];
+        } else {
+          delete bindList[name].proto[methodName];
+        }
       }
     }
     // empty the functionContainer
-    functionContainer = {
-      object: {},
-      array: {},
-      number: {},
-      string: {},
-      date: {},
-      regexp: {}
-    };
+    for (var name in bindList) {
+      bindList[name].functionContainer = {};
+    }
   };
 
   CherryJs.bind = bind;
