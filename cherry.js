@@ -77,7 +77,9 @@
     for (var name in bindList) {
       for (var i=0; i < bindList[name].methods.length; i++) {
         var methodName = bindList[name].methods[i];
-        bindList[name].proto[methodName] && (bindList[name].functionContainer[methodName] = bindList[name].proto[methodName]);
+        if (bindList[name].proto[methodName]) {
+          bindList[name].functionContainer[methodName] = bindList[name].proto[methodName];
+        } 
       }
     }
 
@@ -88,7 +90,7 @@
     Object.defineProperties(Object.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (objectStack) {
           var obj = {};
@@ -116,7 +118,7 @@
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (obj) {
           for (var attr in this) {
@@ -153,7 +155,7 @@
 
       "$in": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (arr) {
           if (Object.prototype.toString.call(arr) === '[object Array]') {
@@ -179,7 +181,7 @@
     Object.defineProperties(Array.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (objectStack) {
           var thisArr = this.valueOf();
@@ -193,7 +195,7 @@
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (arr) {
           var me = this.valueOf();
@@ -217,7 +219,7 @@
 
       "$swap": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (index1, index2) {
           var me = this.valueOf();
@@ -241,7 +243,7 @@
 
       "$intersect": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (arr) {
           var me = this.valueOf();
@@ -257,7 +259,7 @@
 
       "$unite": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function (arr) {
           var me = this.valueOf();
@@ -287,14 +289,14 @@
     Object.defineProperties(Number.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function() { return this.valueOf(); }
       },
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(num) { return this.valueOf() === num; }
       }
@@ -307,14 +309,14 @@
     Object.defineProperties(Boolean.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function() { return this.valueOf(); }
       },
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(bool) { return this.valueOf() === bool; }
       }
@@ -327,28 +329,28 @@
     Object.defineProperties(String.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function() { return this.valueOf(); }
       },
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(str) { return this.valueOf() === str; }
       },
 
       "$trim": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(str) { return this.valueOf().replace(/^\s*((\S+.*\S+)|\S)\s*$/, '$1'); }
       },
 
       "$removeSpace": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(str) { return this.valueOf().replace(/\s/g, ''); }
       }
@@ -361,14 +363,14 @@
     Object.defineProperties(Date.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function() { return new Date(this.valueOf()); }
       },
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(date) { return this.valueOf() === date.valueOf(); }
       }
@@ -381,7 +383,7 @@
     Object.defineProperties(RegExp.prototype, {
       "$clone": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function() {
           var pattern = this.valueOf();
@@ -395,7 +397,7 @@
 
       "$equal": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         writable: true,
         value: function(regexp) {
           var me = this.valueOf();
@@ -419,9 +421,7 @@
           delete bindList[name].proto[methodName];
         }
       }
-    }
-    // empty the functionContainer
-    for (var name in bindList) {
+      // empty the functionContainer
       bindList[name].functionContainer = {};
     }
   };
