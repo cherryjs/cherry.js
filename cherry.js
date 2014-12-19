@@ -35,7 +35,7 @@
 
   var bindList = {
     object: {
-      methods: [ '$clone', '$equal', '$at', '$debug' ],
+      methods: [ '$clone', '$equal', '$in', '$debug' ],
       functionContainer: {},
       proto: Object.prototype
     },
@@ -77,7 +77,7 @@
     for (var name in bindList) {
       for (var i=0; i < bindList[name].methods.length; i++) {
         var methodName = bindList[name].methods[i];
-        bindList[name].functionContainer[methodName] = bindList[name].proto[methodName] || undefined;
+        bindList[name].proto[methodName] && (bindList[name].functionContainer[methodName] = bindList[name].proto[methodName]);
       }
     }
 
@@ -151,7 +151,7 @@
         }
       },
 
-      "$at": {
+      "$in": {
         enumerable: false,
         configurable: false,
         writable: true,
@@ -169,7 +169,7 @@
           return false;
         }
       }
-      
+
     });
 
     /*=====================================*
@@ -247,7 +247,7 @@
           var me = this.valueOf();
           var result = [];
           for (var i = 0; i < me.length; i++) {
-            if (me[i].$at(arr) && !me[i].$at(result)) {
+            if (me[i].$in(arr) && !me[i].$in(result)) {
               result.push(me[i]);
             }
           }
@@ -266,12 +266,12 @@
             return me;
           }
           for (var i = 0; i < me.length; i++) {
-            if (!me[i].$at(result)) {
+            if (!me[i].$in(result)) {
               result.push(me[i]);
             }
           }
           for (i = 0; i < arr.length; i++) {
-            if (!arr[i].$at(result)) {
+            if (!arr[i].$in(result)) {
               result.push(arr[i]);
             }
           }
