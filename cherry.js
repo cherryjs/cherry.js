@@ -49,11 +49,11 @@
       functionContainer: {},
       proto: Number.prototype
     },
-    // bool: {
-    //   methods: [ '$clone', '$equal' ],
-    //   functionContainer: {},
-    //   proto: Boolean.prototype
-    // },
+    bool: {
+      methods: [ '$clone', '$equal' ],
+      functionContainer: {},
+      proto: Boolean.prototype
+    },
     string: {
       methods: [ '$clone', '$equal', '$removeSpace', '$trim' ],
       functionContainer: {},
@@ -297,6 +297,26 @@
         configurable: false,
         writable: true,
         value: function(num) { return this.valueOf() === num; }
+      }
+    });
+
+    /*=====================================*
+     * Boolean.prototype *
+     *=====================================*/
+
+    Object.defineProperties(Boolean.prototype, {
+      "$clone": {
+        enumerable: false,
+        configurable: false,
+        writable: true,
+        value: function() { return this.valueOf(); }
+      },
+
+      "$equal": {
+        enumerable: false,
+        configurable: false,
+        writable: true,
+        value: function(bool) { return this.valueOf() === bool; }
       }
     });
 
