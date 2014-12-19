@@ -168,17 +168,8 @@
           }
           return false;
         }
-      },
-
-      "$debug": {
-        enumerable: false,
-        configurable: false,
-        writable: true,
-        value: function (message) {
-          console.log("Debug Message: " + message + ', Value: ' + this.valueOf());
-          return this;
-        }
       }
+      
     });
 
     /*=====================================*
