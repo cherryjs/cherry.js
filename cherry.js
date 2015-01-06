@@ -166,7 +166,7 @@
             }
           }
           else {
-            console.warn('Warning 11001: the argument of Object.at() is not an array.');
+            console.warn('Warning 11001: the argument of Object.$in() is not an array.');
           }
           return false;
         }
@@ -227,11 +227,11 @@
             return this;
           }
           if (index1 < 0 || index1 >= me.length) {
-            console.warn('Warning 21001: the argument index1 of Array.swap(index1, index2) is out of range.');
+            console.warn('Warning 21001: the argument index1 of Array.$swap(index1, index2) is out of range.');
             return this;
           }
           if (index2 < 0 || index2 >= me.length) {
-            console.warn('Warning 21002: the argument index2 of Array.swap(index1, index2) is out of range.');
+            console.warn('Warning 21002: the argument index2 of Array.$swap(index1, index2) is out of range.');
             return this;
           }
           var tmp = me[index1];
