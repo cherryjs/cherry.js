@@ -46,5 +46,8 @@ If you don't care about polluting the global namespace, you can:
         console.log(arr); //return ['c','b','a','d'];
     });
 
+## Warning and Error types
+- See [the document of errors & warnings](https://github.com/cherryjs/cherry.js/blob/master/error.md)
+
 ## More Infos
 Home Website: http://cherryjs.com
