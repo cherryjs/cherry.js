@@ -1,6 +1,6 @@
 {
   "name": "cherry.js",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A JavaScript utility library, and it can run on both browser and Node.",
   "main": "cherry.js",
   "directories": {
