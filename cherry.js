@@ -1,6 +1,6 @@
-//   cherry.js 0.1.6
+//   cherry.js 0.1.7
 //   http://cherryjs.com
-//   (c) 2013-2014 Jerry Zou
+//   (c) 2013-2015 Jerry Zou
 //   Under the MIT license
 
 ((function () {
@@ -33,39 +33,54 @@
     root.$C = root.CherryJs = CherryJs;
   }
 
+  // Error Types
+  var Exception = function(message) {
+    this.message = message;
+  };
+
+  Exception.prototype.toString = function() {
+    return this.message;
+  };
+
   var bindList = {
     object: {
-      methods: [ '$clone', '$equal', '$in', '$debug' ],
+      methods: [ 
+        '$clone', '$equal', '$in',
+        '$isArray', '$isRing'
+      ],
       functionContainer: {},
       proto: Object.prototype
     },
     array: {
-      methods: [ '$clone', '$equal', '$swap', '$intersect', '$unite' ],
+      methods: [
+        '$clone', '$equal', '$swap',
+        '$intersect', '$unite', '$isRing'
+      ],
       functionContainer: {},
       proto: Array.prototype
     },
     number: {
-      methods: [ '$clone', '$equal' ],
+      methods: [ '$clone', '$equal', '$isRing' ],
       functionContainer: {},
       proto: Number.prototype
     },
     bool: {
-      methods: [ '$clone', '$equal' ],
+      methods: [ '$clone', '$equal', '$isRing' ],
       functionContainer: {},
       proto: Boolean.prototype
     },
     string: {
-      methods: [ '$clone', '$equal', '$removeSpace', '$trim' ],
+      methods: [ '$clone', '$equal', '$removeSpace', '$trim', '$isRing' ],
       functionContainer: {},
       proto: String.prototype
     },
     regexp: {
-      methods: [ '$clone', '$equal' ],
+      methods: [ '$clone', '$equal', '$isRing' ],
       functionContainer: {},
       proto: RegExp.prototype
     },
     date: {
-      methods: [ '$clone', '$equal' ],
+      methods: [ '$clone', '$equal', '$isRing' ],
       functionContainer: {},
       proto: Date.prototype
     }
@@ -120,7 +135,17 @@
         enumerable: false,
         configurable: true,
         writable: true,
-        value: function (obj) {
+        value: function (obj, noRing) {
+          if (!obj) {
+            return false;
+          }
+          console.log(noRing);
+          if (!noRing && this.$isRing() || obj.$isRing()) {
+            throw new Exception('Error 12001: Cannot call $equal on a object which contains a ring.');
+          } else {
+            noRing = true;
+          }
+
           for (var attr in this) {
             if (this.hasOwnProperty(attr) && obj.hasOwnProperty(attr)) {
               if (typeof(this[attr]) !== "function") {
@@ -131,7 +156,7 @@
                       return false; 
                     }
                     else {
-                      if (!this[attr].$equal(obj[attr])) {
+                      if (!this[attr].$equal(obj[attr], noRing)) {
                         return false;
                       }
                     }
@@ -153,13 +178,22 @@
         }
       },
 
+      "$isArray": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function () {
+          return Object.prototype.toString.call(this.valueOf()) === '[object Array]' ? true : false;
+        }
+      },
+
       "$in": {
         enumerable: false,
         configurable: true,
         writable: true,
         value: function (arr) {
-          if (Object.prototype.toString.call(arr) === '[object Array]') {
-            for (var i=0; i<arr.length; i++) {
+          if (arr && arr.$isArray()) {
+            for (var i = 0; i < arr.length; i++) {
               if (arr[i] === this.valueOf()) {
                 return true;
               }
@@ -170,7 +204,29 @@
           }
           return false;
         }
-      }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function (list) {
+          list = list || [];
+          //judge if this object has been in list
+          for (var i = 0; i < list.length; i++) {
+            if (this === list[i]) {
+              return true;
+            }
+          }
+          list.push(this);
+          for (var prop in this) {
+            if (this.hasOwnProperty(prop) && this[prop].$isRing(list)) {
+              return true;
+            }
+          }
+          return false;
+        }
+      },
 
     });
 
@@ -197,7 +253,7 @@
         enumerable: false,
         configurable: true,
         writable: true,
-        value: function (arr) {
+        value: function (arr, noRing) {
           var me = this.valueOf();
           if (me.length !== arr.length) {
             return false;
@@ -208,7 +264,7 @@
             } else if (me[i] === undefined && arr[i] !== undefined) {
               return false;
             } else if (me[i] !== undefined && arr[i] !== undefined) {
-              if (me[i] !== arr[i]) {
+              if (!me[i].$equal(arr[i], noRing)) {
                 return false;
               }
             }
@@ -279,6 +335,23 @@
           }
           return result;
         }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function(list) {
+          var me = this.valueOf();
+          list = list || [];
+
+          for (var i = 0; i < me.length; i++) {
+            if (me[i] && me[i].$isRing(list)) {
+              return true;
+            }
+          }
+          return false;
+        }
       }
     });
 
@@ -299,6 +372,15 @@
         configurable: true,
         writable: true,
         value: function(num) { return this.valueOf() === num; }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function() {
+          return false;
+        }
       }
     });
 
@@ -319,6 +401,15 @@
         configurable: true,
         writable: true,
         value: function(bool) { return this.valueOf() === bool; }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function() {
+          return false;
+        }
       }
     });
 
@@ -353,6 +444,15 @@
         configurable: true,
         writable: true,
         value: function(str) { return this.valueOf().replace(/\s/g, ''); }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function() {
+          return false;
+        }
       }
     });
 
@@ -373,6 +473,15 @@
         configurable: true,
         writable: true,
         value: function(date) { return this.valueOf() === date.valueOf(); }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function() {
+          return false;
+        }
       }
     });
 
@@ -405,6 +514,15 @@
             me.global === regexp.global &&
             me.ignoreCase === regexp.ignoreCase &&
             me.multiline === regexp.multiline;
+        }
+      },
+
+      "$isRing": {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        value: function() {
+          return false;
         }
       }
     });
