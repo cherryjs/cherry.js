@@ -13,7 +13,7 @@ Object.defineProperties(Object.prototype, {
     configurable: true,
     writable: true,
     value: function (objectStack) {
-      var obj = {};
+      var obj = Object.create(Object.getPrototypeOf(this));
       objectStack = objectStack || [];
       objectStack.push(this);
 
@@ -88,7 +88,7 @@ Object.defineProperties(Object.prototype, {
     configurable: true,
     writable: true,
     value: function () {
-      return Object.prototype.toString.call(this.valueOf()) === '[object Array]' ? true : false;
+      return Array.isArray(this.valueOf());
     }
   },
 
