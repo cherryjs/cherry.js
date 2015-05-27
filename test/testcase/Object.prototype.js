@@ -6,6 +6,7 @@ QUnit.test('$clone', function(assert) {
         this.arr = [1,2,3];
     }
     var obj = { d: new Date(), r: /abc/ig, x: new X(), arr: [1,2,3] },
+        obj2,
         clone;
 
     obj.x.xx = new X();
@@ -25,7 +26,16 @@ QUnit.test('$clone', function(assert) {
     //Arrays
     assert.notStrictEqual(obj.arr, clone.arr, 'Array has been deep cloned.');
     assert.deepEqual(obj.arr.testProp, clone.arr.testProp, 'Keep props of Arrays');
-    assert.deepEqual(obj.arr.valueOf(), clone.arr.valueOf(), 'And the values of two X are equal');
+    assert.deepEqual(obj.arr.valueOf(), clone.arr.valueOf(), 'And the values of two Arrays are equal');
+
+    //Circular structure
+    obj = {};
+    obj2 = { o:obj };
+    obj.o = obj2;
+    clone = obj.$clone();
+
+    assert.notStrictEqual(obj, clone, 'The first part of circular structure has been deep cloned.');
+    assert.notStrictEqual(obj2, clone.o, 'The second part of circular structure has been deep cloned.');
 });
 
 QUnit.test('$isRing', function(assert) {
