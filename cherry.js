@@ -46,7 +46,7 @@ Object.defineProperties(Object.prototype, {
       }
       console.log(noRing);
       if (!noRing && this.$isRing() || obj.$isRing()) {
-        throw new Exception('Error 12001: Cannot call $equal on a object which contains a ring.');
+        throw ('Error 12001: Cannot call $equal on a object which contains a ring.');
       } else {
         noRing = true;
       }
