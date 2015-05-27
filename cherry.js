@@ -145,10 +145,12 @@ Object.defineProperties(Array.prototype, {
     configurable: true,
     writable: true,
     value: function (objectStack) {
-      var thisArr = this.valueOf();
-      var newArr = [];
-      for (var i=0; i<thisArr.length; i++) {
-        newArr.push(thisArr[i].$clone(objectStack));
+      var thisArr = this.valueOf(),
+          newArr = [],
+          keys = Object.keys(thisArr);
+
+      for (var i = 0; i < keys.length; i++) {
+          newArr[keys[i]] = thisArr[keys[i]];
       }
       return newArr;
     }
