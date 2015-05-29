@@ -1,21 +1,65 @@
-//   cherry.js 0.2.0
+//   cherry.js 0.2.1
 //   http://cherryjs.com
 //   (c) 2013-2015 Jerry Zou
 //   Under the MIT license
 
-/*=====================================*
- * Object.prototype *
- *=====================================*/
+(function () {
 
-Object.defineProperties(Object.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (srcStack, dstStack) {
+    function defineMethods(protoArray, nameToFunc) {
+        protoArray.forEach(function(proto) {
+            var names = Object.keys(nameToFunc),
+                i = 0;
+
+            for (; i < names.length; i++) {
+                Object.defineProperty(proto, names[i], {
+                    enumerable: false,
+                    configurable: true,
+                    writable: true,
+                    value: nameToFunc[names[i]]
+                });
+            }
+        });
+    }
+
+    /*=====================================*
+     * Object / Array / Number / Boolean / String / Date / RegExp.prototype
+     * - $clone()
+     * - $equal(obj)
+     * - $isPlainObject()
+     * - $isFunction()
+     * !! Some Methods will be overridden by methods below. !!
+     *=====================================*/
+
+    defineMethods([
+        Object.prototype,
+        Array.prototype,
+        Number.prototype,
+        Boolean.prototype,
+        String.prototype,
+        Date.prototype,
+        RegExp.prototype
+    ], {
+        '$clone': function() { return this.valueOf(); },
+        '$equal': function(val) { return this.valueOf() === val; },
+        '$isPlainObject': function() { return false; },
+        '$isFunction': function() { return false; }
+    });
+
+    /*=====================================*
+     * Object.prototype
+     * - $clone()
+     * - $equal(obj)
+     * - $isPlainObject()
+     * - $isArray()
+     * - $in()
+     *=====================================*/
+
+    defineMethods([ Object.prototype ], {
+        '$clone': function (srcStack, dstStack) {
             var obj = Object.create(Object.getPrototypeOf(this)),
                 keys = Object.keys(this),
-                index;
+                index,
+                prop;
 
             srcStack = srcStack || [];
             dstStack = dstStack || [];
@@ -23,138 +67,92 @@ Object.defineProperties(Object.prototype, {
             dstStack.push(obj);
 
             for (var i = 0; i < keys.length; i++) {
-                if (typeof(this[keys[i]]) !== "function") {
-                    if (this[keys[i]] === null) {
-                        obj[keys[i]] = null;
-                    }
-                    else {
-                        index = srcStack.indexOf(this[keys[i]]);
+                prop = this[keys[i]];
+                if (prop === null || prop === undefined) {
+                    obj[keys[i]] = prop;
+                }
+                else if (!prop.$isFunction()) {
+                    if (prop.$isPlainObject()) {
+                        index = srcStack.lastIndexOf(prop);
                         if (index > 0) {
                             obj[keys[i]] = dstStack[index];
-                        } else {
-                            obj[keys[i]] = this[keys[i]].$clone(srcStack, dstStack);
+                            continue;
                         }
                     }
+                    obj[keys[i]] = prop.$clone(srcStack, dstStack);
                 }
             }
             return obj;
-        }
-    },
+        },
 
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (obj, noRing) {
+        '$equal': function (obj, stack) {
+            var aKeys, bKeys, i, a, b;
+
             if (!obj) {
                 return false;
-            }
-            console.log(noRing);
-            if (!noRing && this.$isRing() || obj.$isRing()) {
-                throw ('Error 12001: Cannot call $equal on a object which contains a ring.');
-            } else {
-                noRing = true;
+            } else if (this === obj) {
+                return true;
             }
 
-            for (var attr in this) {
-                if (this.hasOwnProperty(attr) && obj.hasOwnProperty(attr)) {
-                    if (typeof(this[attr]) !== "function") {
-                        if (typeof(this[attr]) === "object") {
-                            if (this[attr] === null && obj[attr] === null) {
-                            }
-                            else {
-                                if ((this[attr] !== null && obj[attr] === null) || (this[attr] === null && obj[attr] !== null)) {
-                                    return false;
-                                }
-                                else {
-                                    if (!this[attr].$equal(obj[attr], noRing)) {
-                                        return false;
-                                    }
-                                }
-                            }
-                        } else {
-                            if (this[attr] !== obj[attr]) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-                else {
-                    if (typeof(this[attr]) !== "function") {
+            aKeys = Object.keys(this);
+            bKeys = Object.keys(obj);
+            if (!aKeys.$equal(bKeys)) {
+                return false;
+            }
+
+            stack = stack || [];
+            if (this.$in(stack)) {
+                throw "MeaninglessEqual: Cannot call $equal on a object which contains a circular structure.";
+            }
+            stack.push(this);
+
+            for (i = 0; i < aKeys.length; i++) {
+                a = this[aKeys[i]];
+                b = obj[aKeys[i]];
+                if (a === null) {
+                    if (b !== null) {
                         return false;
                     }
+                } else if (a === undefined) {
+                    if (b !== undefined) {
+                        return false;
+                    }
+                } else if (!a.$equal(b, stack)) {
+                    return false;
                 }
             }
             return true;
-        }
-    },
+        },
 
-    "$isArray": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return Array.isArray(this.valueOf());
-        }
-    },
-
-    "$in": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (arr) {
+        '$in': function (arr) {
             if (arr && arr.$isArray()) {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i] === this.valueOf()) {
-                        return true;
-                    }
-                }
+                return arr.indexOf(this.valueOf()) >= 0;
             }
-            else {
-                console.warn('Warning 11001: the argument of Object.$in() is not an array.');
-            }
-            return false;
-        }
-    },
+            throw 'ArgumentFault: Object.prototype.$in need arguments with array type';
+        },
 
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (list) {
-            list = list || [];
-            //judge if this object has been in list
-            for (var i = 0; i < list.length; i++) {
-                if (this === list[i]) {
-                    return true;
-                }
-            }
-            list.push(this);
-            for (var prop in this) {
-                if (this.hasOwnProperty(prop) && this[prop].$isRing(list)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+        '$isPlainObject': function() { return true; },
 
-});
+        '$isArray': function () { return Array.isArray(this.valueOf()); }
+    });
 
-/*=====================================*
- * Array.prototype *
- *=====================================*/
+    /*=====================================*
+     * Array.prototype
+     * - $clone
+     * - $equal
+     * - $swap
+     * - $remove
+     * - $intersect
+     * - $unite
+     *=====================================*/
 
-Object.defineProperties(Array.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (srcStack, dstStack) {
+    defineMethods([ Array.prototype ], {
+        '$clone': function (srcStack, dstStack) {
             var thisArr = this.valueOf(),
                 newArr = [],
                 keys = Object.keys(thisArr),
-                index;
+                index,
+                element;
 
             srcStack = srcStack || [];
             dstStack = dstStack || [];
@@ -162,46 +160,50 @@ Object.defineProperties(Array.prototype, {
             dstStack.push(newArr);
 
             for (var i = 0; i < keys.length; i++) {
-                index = srcStack.indexOf(thisArr[keys[i]]);
-                if (index > 0) {
-                    newArr[keys[i]] = dstStack[index];
-                } else {
-                    newArr[keys[i]] = thisArr[keys[i]].$clone(srcStack, dstStack);
+                element = thisArr[keys[i]];
+                if (element === undefined || element === null) {
+                    newArr[keys[i]] = element;
+                } else if (!element.$isFunction()) {
+                    if (element.$isPlainObject()) {
+                        index = srcStack.lastIndexOf(element);
+                        if (index > 0) {
+                            newArr[keys[i]] = dstStack[index];
+                            continue;
+                        }
+                    }
                 }
+                newArr[keys[i]] = element.$clone(srcStack, dstStack);
             }
             return newArr;
-        }
-    },
+        },
 
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (arr, noRing) {
+        '$equal': function (arr, stack) {
             var me = this.valueOf();
+
+            if (arr && !arr.$isArray()) {
+                return false;
+            }
             if (me.length !== arr.length) {
                 return false;
             }
+
+            stack = stack || [];
+            if (this.$in(stack)) {
+                throw "MeaninglessEqual: Cannot call $equal on a object which contains a circular structure.";
+            }
+            stack.push(this);
+
             for (var i = 0; i < me.length; i++) {
-                if (me[i] !== undefined && arr[i] === undefined) {
+                if (me[i] === undefined && arr[i] !== undefined) {
                     return false;
-                } else if (me[i] === undefined && arr[i] !== undefined) {
+                } else if (me[i] !== undefined && !me[i].$equal(arr[i], stack)) {
                     return false;
-                } else if (me[i] !== undefined && arr[i] !== undefined) {
-                    if (!me[i].$equal(arr[i], noRing)) {
-                        return false;
-                    }
                 }
             }
             return true;
-        }
-    },
+        },
 
-    "$swap": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (index1, index2) {
+        '$swap': function (index1, index2) {
             var me = this.valueOf();
             if (index1 === index2) {
                 return this;
@@ -218,256 +220,144 @@ Object.defineProperties(Array.prototype, {
             me[index1] = me[index2];
             me[index2] = tmp;
             return this;
-        }
-    },
+        },
 
-    "$intersect": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (arr) {
-            var me = this.valueOf();
-            var result = [];
-            for (var i = 0; i < me.length; i++) {
-                if (me[i].$in(arr) && !me[i].$in(result)) {
+        '$remove': function(index) {
+            var me = this.valueOf(),
+                i;
+
+            if (index >= me.length || index < 0) {
+                return this;
+            }
+
+            for (i = index; i < me.length - 1; i++) {
+                me[i] = me[i+1];
+            }
+
+            me.pop();
+            return this;
+        },
+
+        '$intersect': function() {
+            var me = this.valueOf(),
+                result = [],
+                i, j, arr;
+
+            // duplicate-free
+            for (i = 0; i < me.length; i++) {
+                if (result.indexOf(me[i]) < 0) {
                     result.push(me[i]);
                 }
             }
-            return result;
-        }
-    },
 
-    "$unite": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (arr) {
-            var me = this.valueOf();
-            var result = [];
-            if (!arr) {
-                return me;
+            for (i = 0; i < arguments.length; i++) {
+                arr = arguments[i];
+                if (!arr || (arr && !arr.$isArray())) {
+                    throw 'ArgumentFault: Array.prototype.$intersect need arguments with array type';
+                }
+
+                for (j = 0; j < result.length; j++) {
+                    if (arr.indexOf(result[j]) < 0) {
+                        result.$remove(j);
+                        j--;
+                    }
+                }
+
             }
-            for (var i = 0; i < me.length; i++) {
-                if (!me[i].$in(result)) {
+
+            return result;
+        },
+
+        '$unite': function() {
+            var me = this.valueOf(),
+                result = [],
+                i, j, arr;
+
+            // duplicate-free
+            for (i = 0; i < me.length; i++) {
+                if (result.indexOf(me[i]) < 0) {
                     result.push(me[i]);
                 }
             }
-            for (i = 0; i < arr.length; i++) {
-                if (!arr[i].$in(result)) {
-                    result.push(arr[i]);
+
+            for (i = 0; i < arguments.length; i++) {
+                arr = arguments[i];
+                if (!arr || (arr && !arr.$isArray())) {
+                    throw 'ArgumentFault: Array.prototype.$unite need arguments with array type';
                 }
+
+                for (j = 0; j < arr.length; j++) {
+                    if (!arr[j].$in(result)) {
+                        result.push(arr[j]);
+                    }
+                }
+
             }
+
             return result;
         }
-    },
+    });
 
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (list) {
-            var me = this.valueOf();
-            list = list || [];
+    /*=====================================*
+     * String.prototype
+     * - $trim()
+     * - $removeSpace()
+     *=====================================*/
 
-            for (var i = 0; i < me.length; i++) {
-                if (me[i] && me[i].$isRing(list)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-});
+    defineMethods([ String.prototype ], {
+        '$trim': function() { return this.valueOf().replace(/^\s*((\S+.*\S+)|\S)\s*$/, '$1'); },
+        '$removeSpace': function() { return this.valueOf().replace(/\s/g, ''); }
+    });
 
-/*=====================================*
- * Number.prototype *
- *=====================================*/
+    /*=====================================*
+     * Date.prototype
+     * - $clone
+     *=====================================*/
 
-Object.defineProperties(Number.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return this.valueOf();
-        }
-    },
+    defineMethods([ Date.prototype ], {
+        '$clone': function() { return new Date(this.valueOf()); }
+    });
 
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (num) {
-            return this.valueOf() === num;
-        }
-    },
+    /*=====================================*
+     * RegExp.prototype
+     * - $clone
+     * - $equal
+     *=====================================*/
 
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return false;
-        }
-    }
-});
-
-/*=====================================*
- * Boolean.prototype *
- *=====================================*/
-
-Object.defineProperties(Boolean.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return this.valueOf();
-        }
-    },
-
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (bool) {
-            return this.valueOf() === bool;
-        }
-    },
-
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return false;
-        }
-    }
-});
-
-/*=====================================*
- * String.prototype *
- *=====================================*/
-
-Object.defineProperties(String.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return this.valueOf();
-        }
-    },
-
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (str) {
-            return this.valueOf() === str;
-        }
-    },
-
-    "$trim": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return this.valueOf().replace(/^\s*((\S+.*\S+)|\S)\s*$/, '$1');
-        }
-    },
-
-    "$removeSpace": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return this.valueOf().replace(/\s/g, '');
-        }
-    },
-
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return false;
-        }
-    }
-});
-
-/*=====================================*
- * Date.prototype *
- *=====================================*/
-
-Object.defineProperties(Date.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return new Date(this.valueOf());
-        }
-    },
-
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (date) {
-            return this.valueOf() === date.valueOf();
-        }
-    },
-
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return false;
-        }
-    }
-});
-
-/*=====================================*
- * RegExp.prototype *
- *=====================================*/
-
-Object.defineProperties(RegExp.prototype, {
-    "$clone": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
+    defineMethods([ RegExp.prototype ], {
+        '$clone': function () {
             var pattern = this.valueOf();
             var flags = '';
             flags += pattern.global ? 'g' : '';
             flags += pattern.ignoreCase ? 'i' : '';
             flags += pattern.multiline ? 'm' : '';
             return new RegExp(pattern.source, flags);
-        }
-    },
-
-    "$equal": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function (regexp) {
+        },
+        '$equal': function (regexp) {
             var me = this.valueOf();
             return me.source === regexp.source &&
                 me.global === regexp.global &&
                 me.ignoreCase === regexp.ignoreCase &&
                 me.multiline === regexp.multiline;
         }
-    },
+    });
 
-    "$isRing": {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        value: function () {
-            return false;
+    /*=====================================*
+     * Function.prototype
+     * - $isFunction()
+     * - $equal(obj)
+     *=====================================*/
+
+    defineMethods([ Function.prototype ], {
+        '$isFunction': function() { return true; },
+        '$equal': function (obj) {
+            if (obj === undefined || obj === null) {
+                return false;
+            } else if (obj.$isFunction()) {
+                return true;
+            }
         }
-    }
-});
+    });
+
+}());
   
