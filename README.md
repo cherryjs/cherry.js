@@ -1,7 +1,7 @@
 cherry.js
 =========
 
-[cherry.js](http://cherryjs.com) is a JavaScript utility library, and it can run on both browser and Node. You can use javascript more easily with cherry.js. The sample follows:
+[cherry.js](http://cherry.jerryzou.com) is a JavaScript utility library, and it can run on both browser and Node. You can use javascript more easily with cherry.js. The sample follows:
 
 Just include this script for using:
 
@@ -36,4 +36,4 @@ And enjoy cherry.js:
 - See [the document of errors & warnings](https://github.com/cherryjs/cherry.js/blob/master/error.md)
 
 ## More Infos
-Home Website: http://cherryjs.com
+Home Website: http://cherry.jerryzou.com
