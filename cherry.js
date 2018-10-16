@@ -74,7 +74,7 @@
                 else if (!prop.$isFunction()) {
                     if (prop.$isPlainObject()) {
                         index = srcStack.lastIndexOf(prop);
-                        if (index > 0) {
+                        if (index >= 0) {
                             obj[keys[i]] = dstStack[index];
                             continue;
                         }
@@ -166,7 +166,7 @@
                 } else if (!element.$isFunction()) {
                     if (element.$isPlainObject()) {
                         index = srcStack.lastIndexOf(element);
-                        if (index > 0) {
+                        if (index >= 0) {
                             newArr[keys[i]] = dstStack[index];
                             continue;
                         }
